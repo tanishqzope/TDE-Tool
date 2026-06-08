@@ -1,11 +1,3 @@
-
-"""
-TDE - The Data Encoder/Decoder
-
-A robust, cross-platform CLI tool for Base64 encoding and decoding.
-Built entirely on Python's standard library — zero external dependencies.
-"""
-
 import argparse
 import base64
 import os
@@ -17,7 +9,6 @@ from tde import __version__
 
 
 def _supports_colour() -> bool:
-    """Return True when stdout is a TTY that likely supports ANSI escapes."""
     if os.getenv("NO_COLOR"):          
         return False
     if os.getenv("TERM") == "dumb":
@@ -28,7 +19,6 @@ def _supports_colour() -> bool:
 _COLOUR = _supports_colour()
 
 def _c(code: str, text: str) -> str:
-    """Wrap *text* in an ANSI escape if colour is enabled."""
     return f"\033[{code}m{text}\033[0m" if _COLOUR else text
 
 
@@ -76,7 +66,6 @@ EPILOG = f"""
 
 
 class _Formatter(argparse.RawDescriptionHelpFormatter):
-    """Widen the help output a bit for readability."""
 
     def __init__(self, prog: str, **kwargs):
         kwargs.setdefault("max_help_position", 30)
@@ -87,13 +76,6 @@ class _Formatter(argparse.RawDescriptionHelpFormatter):
 
 
 def _acquire_input(args) -> bytes:
-    """
-    Resolve the data payload using a strict priority hierarchy:
-      1. --input / -i  (file path)
-      2. stdin          (piped data)
-      3. positional     (inline string argument)
-    Returns raw bytes ready for processing.
-    """
   
     if args.input:
         path = os.path.expanduser(args.input)
@@ -122,13 +104,6 @@ def _acquire_input(args) -> bytes:
 
 
 def _encode(payload: bytes, *, url_safe: bool) -> bytes:
-    """
-    Encode raw bytes to Base64.
-
-    When --url is active, use the URL-safe alphabet (- and _ instead of
-    + and /) and strip trailing '=' padding so the result can be embedded
-    safely in URLs and JWTs.
-    """
     if url_safe:
         encoded = base64.urlsafe_b64encode(payload)
         return encoded.rstrip(b"=")          
@@ -137,20 +112,6 @@ def _encode(payload: bytes, *, url_safe: bool) -> bytes:
 
 def _decode(payload: bytes, *, url_safe: bool, strict: bool,
             ignore_garbage: bool) -> bytes:
-    """
-    Decode a Base64 payload back to its original bytes.
-
-    Modifier behaviour:
-      --strict          Validate the payload against the Base64 alphabet
-                        *before* decoding and abort with a clear error on
-                        any illegal character.
-      --ignore-garbage  Strip every character that is NOT part of the Base64
-                        alphabet (A-Z a-z 0-9 + / = - _) so that messy
-                        inputs (e.g. with newlines, tabs, stray symbols)
-                        can still be decoded.
-      --url             Restore padding and use the URL-safe alphabet for
-                        decoding.
-    """
     text = payload.decode("ascii", errors="ignore")
 
  
@@ -197,11 +158,6 @@ def _decode(payload: bytes, *, url_safe: bool, strict: bool,
 
 
 def _emit(result: bytes, args) -> None:
-    """
-    Route the processed result to the appropriate destination.
-    If -o / --output is set, write bytes to the specified file.
-    Otherwise print to stdout as UTF-8 text (with a trailing newline).
-    """
     if args.output:
         path = os.path.expanduser(args.output)
         try:
@@ -224,7 +180,6 @@ def _info(msg: str) -> None:
 
 
 def _stderr(msg: str) -> None:
-    """Write to stderr, replacing unencodable chars so Windows never crashes."""
     try:
         sys.stderr.write(msg + "\n")
     except UnicodeEncodeError:
@@ -234,7 +189,6 @@ def _stderr(msg: str) -> None:
 
 
 def _die(msg: str, code: int = 1) -> None:
-    """Print a coloured error message and exit."""
     _stderr(f"\n{_red('Error:')} {msg}")
     sys.exit(code)
 
