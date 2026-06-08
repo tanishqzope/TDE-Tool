@@ -1,12 +1,3 @@
-"""
-setup.py — installation script for TDE (The Data Encoder/Decoder).
-
-Install globally with:
-    pip install .
-
-After installation the `tde` command is available system-wide.
-"""
-
 from setuptools import setup, find_packages
 
 setup(
