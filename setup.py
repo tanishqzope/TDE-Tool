@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="tde",
     version="1.0.0",
-    description="TDE — The Data Encoder/Decoder. A fast, dependency-free Base64 CLI tool.",
+    description="TDE — Tanishq's Decoder & Encoder. A fast, dependency-free Base64 CLI tool.",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     author="Tanishq Zope",
