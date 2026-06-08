@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 TDE - The Data Encoder/Decoder
 
@@ -14,13 +14,11 @@ import sys
 
 from tde import __version__
 
-# ──────────────────────────────────────────────────────────────────────────────
-# ANSI helpers — gracefully degrade on terminals that don't support colours
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 def _supports_colour() -> bool:
     """Return True when stdout is a TTY that likely supports ANSI escapes."""
-    if os.getenv("NO_COLOR"):          # https://no-color.org/
+    if os.getenv("NO_COLOR"):          
         return False
     if os.getenv("TERM") == "dumb":
         return False
@@ -42,9 +40,7 @@ def _red(t: str)    -> str: return _c("31", t)
 def _dim(t: str)    -> str: return _c("2", t)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Banner & custom help formatter
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 BANNER = rf"""
   {_cyan("+========================================+")}
@@ -88,9 +84,7 @@ class _Formatter(argparse.RawDescriptionHelpFormatter):
         super().__init__(prog, **kwargs)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Input acquisition -- file > stdin > positional arg
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 def _acquire_input(args) -> bytes:
     """
@@ -100,7 +94,7 @@ def _acquire_input(args) -> bytes:
       3. positional     (inline string argument)
     Returns raw bytes ready for processing.
     """
-    # 1. File input — highest priority
+  
     if args.input:
         path = os.path.expanduser(args.input)
         if not os.path.isfile(path):
@@ -111,23 +105,21 @@ def _acquire_input(args) -> bytes:
         except OSError as exc:
             _die(f"Cannot read file '{path}': {exc}")
 
-    # 2. Piped stdin — detect whether data is waiting on the pipe
+    
     if not sys.stdin.isatty():
         data = sys.stdin.buffer.read()
         if data:
             return data
 
-    # 3. Direct positional argument
+    
     if args.data:
         return args.data.encode("utf-8")
 
-    # Nothing provided
+  
     _die("No input provided. Supply a string, use -i <file>, or pipe data via stdin.")
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Processing core — encode / decode with modifiers
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 def _encode(payload: bytes, *, url_safe: bool) -> bytes:
     """
@@ -139,7 +131,7 @@ def _encode(payload: bytes, *, url_safe: bool) -> bytes:
     """
     if url_safe:
         encoded = base64.urlsafe_b64encode(payload)
-        return encoded.rstrip(b"=")          # strip padding for URL safety
+        return encoded.rstrip(b"=")          
     return base64.b64encode(payload)
 
 
@@ -161,8 +153,7 @@ def _decode(payload: bytes, *, url_safe: bool, strict: bool,
     """
     text = payload.decode("ascii", errors="ignore")
 
-    # ── Strict validation ────────────────────────────────────────────────
-    # Check BEFORE any cleaning so the user sees exactly what's wrong.
+ 
     if strict:
         if url_safe:
             bad = re.findall(r"[^A-Za-z0-9\-_=\s]", text)
@@ -176,21 +167,17 @@ def _decode(payload: bytes, *, url_safe: bool, strict: bool,
                 f"  Hint: use --ignore-garbage to strip them automatically."
             )
 
-    # ── Garbage stripping ────────────────────────────────────────────────
-    # Remove everything outside the valid Base64 alphabet so noisy inputs
-    # (copy-paste artefacts, line-wrapping whitespace, etc.) don't break
-    # the decoder.
+  
     if ignore_garbage:
         if url_safe:
             text = re.sub(r"[^A-Za-z0-9\-_=]", "", text)
         else:
             text = re.sub(r"[^A-Za-z0-9+/=]", "", text)
     else:
-        # Even without --ignore-garbage we strip surrounding whitespace
+        
         text = text.strip()
 
-    # ── URL-safe decoding ────────────────────────────────────────────────
-    # Re-pad the string because urlsafe_b64decode expects correct padding.
+  
     if url_safe:
         pad = 4 - len(text) % 4
         if pad != 4:
@@ -200,16 +187,14 @@ def _decode(payload: bytes, *, url_safe: bool, strict: bool,
         except Exception as exc:
             _die(f"Decoding failed: {exc}")
 
-    # ── Standard decoding ────────────────────────────────────────────────
+
     try:
         return base64.b64decode(text)
     except Exception as exc:
         _die(f"Decoding failed: {exc}")
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Output routing — stdout or file
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 def _emit(result: bytes, args) -> None:
     """
@@ -226,16 +211,13 @@ def _emit(result: bytes, args) -> None:
         except OSError as exc:
             _die(f"Cannot write to '{path}': {exc}")
     else:
-        # For terminal output, decode to UTF-8 with replacement so binary
-        # payloads don't crash the shell.
+       
         sys.stdout.buffer.write(result)
         sys.stdout.buffer.write(b"\n")
         sys.stdout.buffer.flush()
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Logging helpers
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 def _info(msg: str) -> None:
     _stderr(f"{_green('[OK]')} {msg}")
@@ -257,9 +239,7 @@ def _die(msg: str, code: int = 1) -> None:
     sys.exit(code)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Argument parser construction
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -275,7 +255,7 @@ def _build_parser() -> argparse.ArgumentParser:
         version=f"TDE v{__version__}",
     )
 
-    # ── Positional: command & optional inline data ────────────────────────
+   
     parser.add_argument(
         "command",
         choices=["encode", "decode"],
@@ -288,7 +268,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Inline string payload (optional if using -i or stdin).",
     )
 
-    # ── I/O flags ────────────────────────────────────────────────────────
+  
     io_group = parser.add_argument_group("I/O options")
     io_group.add_argument(
         "-i", "--input",
@@ -301,7 +281,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Write result to FILE instead of stdout.",
     )
 
-    # ── Advanced modifiers ───────────────────────────────────────────────
+  
     mod_group = parser.add_argument_group("Advanced modifiers")
     mod_group.add_argument(
         "--url",
@@ -325,25 +305,22 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Main entry point
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 def main() -> None:
     parser = _build_parser()
     args = parser.parse_args()
 
-    # Mutually exclusive sanity check
+
     if args.strict and args.ignore_garbage:
         _die("--strict and --ignore-garbage are mutually exclusive.\n"
              "  --strict  demands perfect input.\n"
              "  --ignore-garbage silently discards bad characters.\n"
              "  Pick one.")
 
-    # Acquire the raw payload bytes
     payload = _acquire_input(args)
 
-    # Route to the appropriate processing function
+
     if args.command == "encode":
         result = _encode(payload, url_safe=args.url)
     else:
@@ -354,7 +331,7 @@ def main() -> None:
             ignore_garbage=args.ignore_garbage,
         )
 
-    # Deliver the result
+ 
     _emit(result, args)
 
 
