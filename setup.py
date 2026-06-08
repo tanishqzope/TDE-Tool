@@ -15,16 +15,16 @@ setup(
     description="TDE — The Data Encoder/Decoder. A fast, dependency-free Base64 CLI tool.",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
-    author="Your Name",
-    author_email="you@example.com",
-    url="https://github.com/yourusername/tde-tool",
+    author="Tanishq Zope",
+    author_email="tanishqzope5@gmail.com",
+    url="https://github.com/tanishqzope/TDE-Tool",
     license="MIT",
     packages=find_packages(),
     python_requires=">=3.7",
-    install_requires=[],            # Zero external dependencies — by design
+    install_requires=[],            
     entry_points={
         "console_scripts": [
-            "tde=tde.cli:main",     # `tde` command → tde/cli.py → main()
+            "tde=tde.cli:main",   
         ],
     },
     classifiers=[
