@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/Platform-Win%20%7C%20Linux%20%7C%20macOS-blue?style=for-the-badge" alt="Platform"/>
 </p>
 
-<h1 align="center">🔐 TDE — The Data Encoder</h1>
+<h1 align="center">🔐 TDE — Tanishq's Decoder & Encoder</h1>
 
 <p align="center">
   <strong>A fast, lightweight, dependency-free CLI tool for Base64 encoding & decoding.</strong><br/>
