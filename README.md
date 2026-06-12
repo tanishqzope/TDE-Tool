@@ -51,6 +51,12 @@ cd TDE-Tool
 pip install .
 ```
 
+```bash
+git clone https://github.com/tanishqzope/TDE-Tool.git
+cd TDE-Tool
+pip install .
+```
+
 Once installed, the `tde` command is globally available from **any terminal**.
 
 ### Verify Installation
