@@ -46,11 +46,9 @@
 ### Quick Install
 
 ```bash
-git clone https://github.com/tanishqzope/TDE-Tool.git
-cd TDE-Tool
-pip install .
+pip install tde
 ```
-
+Or
 ```bash
 git clone https://github.com/tanishqzope/TDE-Tool.git
 cd TDE-Tool
