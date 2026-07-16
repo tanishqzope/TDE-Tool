@@ -1,16 +1,16 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/TDE-v1.1.0-00C853?style=for-the-badge&logo=python&logoColor=white" alt="Version"/>
+  <img src="https://img.shields.io/badge/TDE-v1.2.0-00C853?style=for-the-badge&logo=python&logoColor=white" alt="Version"/>
   <img src="https://img.shields.io/badge/Python-3.7+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/>
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License"/>
   <img src="https://img.shields.io/badge/Dependencies-Zero-success?style=for-the-badge" alt="Dependencies"/>
   <img src="https://img.shields.io/badge/Platform-Win%20%7C%20Linux%20%7C%20macOS-blue?style=for-the-badge" alt="Platform"/>
 </p>
 
-<h1 align="center">🔐 TDE — Tanishq's Decoder & Encoder</h1>
+<h1 align="center">🔐 TDE — Tanishq's Decoder, Encoder & Hasher</h1>
 
 <p align="center">
-  <strong>A fast, lightweight, dependency-free CLI tool for multi-format encoding & decoding.</strong><br/>
-  Supports <b>Base64</b>, <b>Hex</b>, <b>Base32</b>, and <b>Base85</b> — built purely with Python's standard libraries.
+  <strong>A fast, lightweight, dependency-free CLI tool for multi-format encoding, decoding & hashing.</strong><br/>
+  Supports <b>Base64</b>, <b>Hex</b>, <b>Base32</b>, <b>Base85</b>, and <b>12+ Hash Algorithms (SHA-256, MD5, Blake2, etc.)</b> — built purely with Python's standard libraries.
 </p>
 
 <p align="center">
@@ -30,6 +30,7 @@
 | Feature | Description |
 |---|---|
 | 🔄 **Multi-Format Encoding** | Supports Base64, Hex, Base32, and Base85 encoding/decoding out of the box |
+| 🔑 **Hash Generation** | Instantly generate MD5, SHA-1, SHA-256, SHA-512, Blake2, and more |
 | 🚫 **Zero Dependencies** | Runs natively using only built-in Python libraries — nothing to install, nothing to break |
 | 🖥️ **Cross-Platform** | Works seamlessly on Command Prompt, PowerShell, Git Bash, WSL, and Linux/macOS terminals |
 | 📁 **File I/O** | Read from and write directly to files for handling large payloads or binaries |
@@ -63,19 +64,24 @@ Once installed, the `tde` command is globally available from **any terminal**.
 
 ```bash
 tde --version
-# Output: TDE v1.1.0
+# Output: TDE v1.2.0
 ```
 
 ---
 
-## 🎯 Supported Formats
+## 🎯 Supported Formats & Algorithms
 
+### Encoding Formats
 | Format | Flag | Alphabet | Use Case |
 |---|---|---|---|
 | **Base64** | `--format base64` *(default)* | `A-Z a-z 0-9 + /` | General-purpose encoding, email, MIME |
 | **Hex** | `--format hex` | `0-9 a-f` | Byte-level inspection, checksums, crypto |
 | **Base32** | `--format base32` | `A-Z 2-7` | Case-insensitive contexts, OTP secrets |
 | **Base85** | `--format base85` | ASCII 33–117 | Maximum density, PDF internals |
+
+### Hash Algorithms
+Supported via the `hash` command and `-a` / `--algo` flag:
+`md5`, `sha1`, `sha224`, `sha256` *(default)*, `sha384`, `sha512`, `sha3_224`, `sha3_256`, `sha3_384`, `sha3_512`, `blake2b`, `blake2s`.
 
 > **Shorthand:** Use `-f` instead of `--format` for brevity — e.g., `tde encode "data" -f hex`
 
@@ -129,6 +135,23 @@ tde encode "hello world" --format base85
 # Decode from Base85
 tde decode "Xk~0{Zv" --format base85
 # Output: hello world
+```
+
+### 🔑 Hashing
+
+Generate cryptographic hashes for any input:
+
+```bash
+# SHA-256 (default)
+tde hash "hello world"
+# Output: b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9
+
+# MD5 Hash
+tde hash "hello world" --algo md5
+# Output: 5eb63bbbe01eeed093cb22bb8f5acdc3
+
+# Hash a file (e.g. SHA-512)
+tde hash -i image.png -a sha512
 ```
 
 ### 🌐 URL-Safe Mode (`--url`)
@@ -207,11 +230,11 @@ tde --help
 ```
   +========================================+
   |  TDE -- The Data Encoder / Decoder     |
-  |  v1.1.0  |  Multi-format Encoder      |
+  |  v1.2.0  |  Encoder, Decoder & Hasher |
   +========================================+
 
 positional arguments:
-  {encode,decode}    Operation to perform: 'encode' or 'decode'.
+  {encode,decode,hash} Operation to perform: 'encode', 'decode', or 'hash'.
   data               Inline string payload (optional if using -i or stdin).
 
 I/O options:
@@ -220,6 +243,9 @@ I/O options:
 
 Encoding format:
   -f, --format FMT   Encoding format: base64 (default), hex, base32, base85.
+
+Hash options:
+  -a, --algo ALGO    Hash algorithm to use (default: sha256).
 
 Advanced modifiers:
   --url              Use URL-safe Base64 alphabet (- _ instead of + /).
@@ -351,11 +377,13 @@ TDE-Tool/
 |---|---|---|
 | `encode` | Command | Convert input using the selected format |
 | `decode` | Command | Decode encoded data back to original |
+| `hash` | Command | Generate a cryptographic hash of the input |
 | `<data>` | Positional | Inline string payload |
 | `-i`, `--input` | Flag | Read payload from a file |
 | `-o`, `--output` | Flag | Write result to a file |
 | `-f`, `--format` | Option | Encoding format: `base64` *(default)*, `hex`, `base32`, `base85` |
-| `-v`, `--version` | Flag | Show version (`TDE v1.1.0`) |
+| `-a`, `--algo` | Option | Hash algorithm (for `hash` command): `sha256` *(default)*, `md5`, etc. |
+| `-v`, `--version` | Flag | Show version (`TDE v1.2.0`) |
 | `-h`, `--help` | Flag | Show help menu with examples |
 | `--url` | Modifier | Use URL-safe Base64 alphabet (Base64 only) |
 | `--strict` | Modifier | Error on invalid characters (all formats) |
@@ -381,10 +409,17 @@ TDE-Tool/
 | 🔐 Encode OTP secrets (Base32) | `tde encode "secret" -f base32` |
 | 📄 Compact binary (Base85) | `tde encode -i data.bin -f base85` |
 | 🔢 Hex round-trip | `echo "test" \| tde encode -f hex \| tde decode -f hex` |
+| 🔑 Hash a password | `tde hash "mypassword" -a sha512` |
+| 📁 Checksum a file | `tde hash -i release.zip -a sha256` |
 
 ---
 
 ## 📋 Changelog
+
+### v1.2.0 — Hash Generation
+- **New:** Added `hash` command for cryptographic hashing
+- **New:** Support for 12+ hash algorithms including `sha256`, `md5`, `blake2b`, etc.
+- **New:** Added `-a` / `--algo` flag for selecting hash algorithms
 
 ### v1.1.0 — Multi-Format Encoding
 

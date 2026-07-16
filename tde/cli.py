@@ -4,12 +4,14 @@ import binascii
 import os
 import re
 import sys
+import hashlib
 
 from tde import __version__
 
 
 # ── Supported encoding formats ────────────────────────────────────────
 FORMATS = ("base64", "hex", "base32", "base85")
+HASH_ALGOS = ("md5", "sha1", "sha224", "sha256", "sha384", "sha512", "sha3_224", "sha3_256", "sha3_384", "sha3_512", "blake2b", "blake2s")
 
 
 def _supports_colour() -> bool:
@@ -40,7 +42,7 @@ def _magenta(t: str) -> str: return _c("35", t)
 BANNER = rf"""
   {_cyan("+========================================+")}
   {_cyan("|")}  {_bold("TDE")} -- {_green("The Data Encoder / Decoder")}    {_cyan("|")}
-  {_cyan("|")}  {_dim(f"v{__version__}  |  Multi-format Encoder")}     {_cyan("|")}
+  {_cyan("|")}  {_dim(f"v{__version__}  |  Encoder, Decoder & Hasher")} {_cyan("|")}
   {_cyan("+========================================+")}
 """
 
@@ -79,6 +81,12 @@ EPILOG = f"""
 
   {_green("Round-trip hex verification:")}
     echo hello | tde encode -f hex | tde decode -f hex
+
+  {_green("Hash a string (SHA-256, default):")}
+    tde hash "hello world"
+
+  {_green("Hash with MD5:")}
+    tde hash "hello world" --algo md5
 """
 
 
@@ -285,6 +293,15 @@ def _decode(payload: bytes, *, url_safe: bool, strict: bool,
         _die(f"Unknown format: {fmt}")
 
 
+# ── Hash engines ──────────────────────────────────────────────────────
+
+def _hash(payload: bytes, algo: str) -> bytes:
+    if algo not in HASH_ALGOS:
+        _die(f"Unknown hash algorithm: {algo}")
+    h = hashlib.new(algo)
+    h.update(payload)
+    return h.hexdigest().encode("ascii")
+
 
 def _emit(result: bytes, args) -> None:
     if args.output:
@@ -341,8 +358,8 @@ def _build_parser() -> argparse.ArgumentParser:
    
     parser.add_argument(
         "command",
-        choices=["encode", "decode"],
-        help="Operation to perform: 'encode' or 'decode'.",
+        choices=["encode", "decode", "hash"],
+        help="Operation to perform: 'encode', 'decode', or 'hash'.",
     )
     parser.add_argument(
         "data",
@@ -372,6 +389,15 @@ def _build_parser() -> argparse.ArgumentParser:
         default="base64",
         metavar="FMT",
         help="Encoding format: base64 (default), hex, base32, base85.",
+    )
+
+    hash_group = parser.add_argument_group("Hash options")
+    hash_group.add_argument(
+        "-a", "--algo",
+        choices=HASH_ALGOS,
+        default="sha256",
+        metavar="ALGO",
+        help="Hash algorithm to use (default: sha256).",
     )
 
     flag_group = parser.add_argument_group("Advanced modifiers")
@@ -420,6 +446,8 @@ def main() -> None:
 
     if args.command == "encode":
         result = _encode(payload, url_safe=args.url, fmt=fmt)
+    elif args.command == "hash":
+        result = _hash(payload, algo=args.algo)
     else:
         result = _decode(
             payload,

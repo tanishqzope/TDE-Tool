@@ -18,3 +18,5 @@ Thumbs.db
 
 # Misc
 .kilocode/
+venv/
+test_tde.py

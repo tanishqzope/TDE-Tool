@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name="tde",
-    version="1.1.0",
-    description="TDE — Tanishq's Decoder & Encoder. A fast, dependency-free multi-format encoding CLI tool (Base64, Hex, Base32, Base85).",
+    version="1.2.0",
+    description="TDE — Tanishq's Decoder & Encoder. A fast, dependency-free multi-format encoding and hashing CLI tool.",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     author="Tanishq Zope",
